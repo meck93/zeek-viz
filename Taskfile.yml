@@ -1,0 +1,52 @@
+version: '3'
+
+tasks:
+  dev:
+    cmds:
+      - air --build.cmd 'go build -o zeek-viz .' --build.bin "zeek-viz" --build.delay "100" --build.include_ext "go" --build.stop_on_error "false" --misc.clean_on_exit true
+
+  build:
+    sources:
+      - '*.go'
+    generates:
+      - zeek-viz
+    cmds:
+      - go build -o zeek-viz .
+
+  build:docker:
+    desc: Build ARM64 Docker image
+    cmds:
+      - docker buildx build --platform linux/arm64 -f Dockerfile -t zeek-viz:latest .
+
+  build:docker:debug:
+    desc: Build Debug ARM64 Docker image
+    cmds:
+      - docker buildx build --platform linux/arm64 -f Dockerfile --build-arg DEBUG_BUILD=true -t zeek-viz:latest .
+
+  format:
+    cmds:
+      - gofmt -l -w .
+
+  lint:
+    desc: Run golangci-lint with strict configuration
+    deps: [lint:golangci, lint:gosec, lint:govet, lint:govulncheck]
+
+  lint:golangci:
+    internal: true
+    cmds:
+      - golangci-lint run --config=.golangci.yml
+
+  lint:gosec:
+    internal: true
+    cmds:
+      - gosec -quiet ./...
+
+  lint:govet:
+    internal: true
+    cmds:
+      - go vet ./...
+
+  lint:govulncheck:
+    internal: true
+    cmds:
+      - govulncheck ./...

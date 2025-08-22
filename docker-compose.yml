@@ -1,0 +1,15 @@
+services:
+  zeek-viz:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zeek-viz:latest
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "./healthcheck", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3ss
+      retries: 3
+      start_period: 2s
+    restart: unless-stopped

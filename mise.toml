@@ -1,0 +1,7 @@
+[tools]
+go = "1.25"
+hk = "latest"
+pkl = "latest"
+
+[hooks]
+postinstall = "hk install --mise; go install -v golang.org/x/tools/gopls@latest; go install golang.org/x/tools/cmd/goimports@latest; go install golang.org/x/vuln/cmd/govulncheck@latest; go install github.com/securego/gosec/v2/cmd/gosec@latest; go install github.com/air-verse/air@latest"

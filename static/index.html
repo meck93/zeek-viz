@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeek Connection Log Visualizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/d3.v7.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <h1>Zeek Connection Log Visualizer</h1>
+            <div class="stats-summary" id="stats-summary">
+                No data loaded. Please upload a Zeek connection log file.
+            </div>
+        </header>
+
+        <!-- File Upload Section -->
+        <div class="upload-section" id="upload-section">
+            <div class="upload-container">
+                <h3>Zeek Connection Log Files</h3>
+                
+                <!-- Existing Files List -->
+                <div class="existing-files" id="existing-files" style="display: none;">
+                    <h4>Previously Uploaded Files (Current Session)</h4>
+                    <div class="files-list" id="files-list">
+                        <!-- Files will be populated here -->
+                    </div>
+                    <div class="files-actions">
+                        <button id="continue-with-files" type="button">Continue with Files</button>
+                        <span class="separator">or</span>
+                    </div>
+                </div>
+                
+                <!-- Upload New File -->
+                <div class="upload-new-file">
+                    <h4 id="upload-title">Upload New Zeek Connection Log</h4>
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <p>Drag and drop your conn.log file here, or <button id="browse-button" type="button">browse</button></p>
+                        <small>Supports JSON format Zeek connection logs (max 50MB)</small>
+                        <input type="file" id="file-input" accept=".log,.json,.txt" style="display: none;">
+                    </div>
+                    <div class="upload-progress" id="upload-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <p id="upload-status">Uploading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="file-selector">Active File:</label>
+                <select id="file-selector">
+                    <option value="">No files loaded</option>
+                </select>
+                <button id="upload-another" type="button">Upload Another</button>
+                <button id="delete-file" type="button">Delete Current</button>
+            </div>
+            
+            <div class="control-group">
+                <label for="protocol-filter">Protocol:</label>
+                <select id="protocol-filter">
+                    <option value="all">All Protocols</option>
+                    <option value="tcp">TCP</option>
+                    <option value="udp">UDP</option>
+                    <option value="icmp">ICMP</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="conn-state-filter">Connection State:</label>
+                <select id="conn-state-filter">
+                    <option value="all">All States</option>
+                    <!-- Options will be populated dynamically based on available states in the log file -->
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="layout-select">Layout:</label>
+                <select id="layout-select">
+                    <option value="force">Force-Directed</option>
+                    <option value="circular">Circular</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <button id="reset-view">Reset View</button>
+                <button id="refresh-data">Refresh Data</button>
+            </div>
+        </div>
+
+        <!-- Main visualization area -->
+        <div class="visualization-container">
+            <!-- Timeline -->
+            <div class="timeline-section">
+                <h3>Timeline</h3>
+                <div id="timeline" class="timeline-chart"></div>
+                <div class="timeline-info">
+                    <span id="timeline-selection">Select a time range to filter connections</span>
+                </div>
+            </div>
+
+            <!-- Network Graph -->
+            <div class="network-section">
+                <h3>Network Graph</h3>
+                <div id="network-graph" class="network-chart"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color local-node"></div>
+                        <span>Local IPs</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color external-node"></div>
+                        <span>External IPs</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line tcp-edge"></div>
+                        <span>TCP</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line udp-edge"></div>
+                        <span>UDP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Panel -->
+        <div id="details-panel" class="details-panel hidden">
+            <div class="panel-header">
+                <h3>Connection Details</h3>
+                <button id="close-details">&times;</button>
+            </div>
+            <div class="panel-content" id="details-content">
+                <!-- Details will be populated here -->
+            </div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div id="loading" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Loading Zeek connection data...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/main.js"></script>
+</body>
+</html>

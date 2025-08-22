@@ -1,0 +1,27 @@
+amends "package://github.com/jdx/hk/releases/download/v1.2.0/hk@1.2.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.2.0/hk@1.2.0#/Builtins.pkl"
+
+local linters = new Mapping<String, Step> {
+    ["go_fmt"] = Builtins.go_fmt
+    ["go_imports"] = Builtins.go_imports
+
+    ["go_linters"] {
+        glob = "**/*.go,**/*.templ"
+        check = "task backend:lint"
+    }
+    
+    ["pkl"] {
+        glob = "*.pkl"
+        check = "pkl eval {{files}} >/dev/null"
+    }
+}
+
+hooks {
+    ["pre-commit"] {
+        fix = false
+        stash = "patch-file"
+        steps {
+            ...linters
+        }
+    }
+}
